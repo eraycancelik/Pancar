@@ -1,7 +1,7 @@
 # Pancar
 # Performance Analysis Tool
 
-This is a performance analysis tool designed to collect, process, and visualize performance data of various tools or systems. The tool collects parameters that affect system performance, processes the data, and generates performance graphs for analysis and reporting.
+This is a performance analysis tool designed to collect, process, and visualize performance data of various ground vehicles. The tool collects parameters that affect vehicle performance, processes the data, and generates performance graphs for analysis and reporting.
 
 ## Key Features:
 - Collects performance parameters from the user or tools under analysis.
