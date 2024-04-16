@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>engine.png</file>
+    <file>gearbox2.jpg</file>
+    <file>road.jpg</file>
+    <file>vehicle.png</file>
+  </qresource>
+</RCC>

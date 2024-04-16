@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="img">
+    <file>icons/dark-car-from-side-vector-9761198.jpg</file>
+    <file>icons/engine.png</file>
+    <file>icons/icon.jpg</file>
+    <file>icons/gearbox.jpg</file>
+    <file>icons/gearbox2.jpg</file>
+    <file>icons/pancar.jpg</file>
+    <file>icons/road.jpg</file>
+    <file>icons/tofile.png</file>
+    <file>icons/desktop-wallpaper-carbon-fiber-background-carbon-metal-carbon-fiber-and-carbon-fiber-background-black-and-red-carbon-fiber-thumbnail.jpg</file>
+    <file>icons/vehicle.png</file>
+    <file>icons/vehicle2.jpg</file>
+  </qresource>
+</RCC>

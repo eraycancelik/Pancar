@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="img">
+    <file>res.qrc</file>
+    <file>assets/engine.png</file>
+    <file>assets/tofile.png</file>
+    <file>assets/dark-car-from-side-vector-9761198.jpg</file>
+    <file>assets/bg.jpg</file>
+    <file>assets/gearbox.jpg</file>
+    <file>assets/gearbox2.jpg</file>
+    <file>assets/pancar.jpg</file>
+    <file>assets/road.jpg</file>
+    <file>assets/vehicle.png</file>
+    <file>assets/vehicle2.jpg</file>
+  </qresource>
+</RCC>
