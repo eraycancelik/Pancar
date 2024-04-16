@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from package.calculations import powerInHp
+from ..package.calculations import powerInHp
 import gc
 def rpm_v_graph(liste, rpm):
     a = 1

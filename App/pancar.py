@@ -1,14 +1,14 @@
 from PyQt6 import QtWidgets
-from package.ui import mainWindow, engine, env, vehicle, gearbox, rapor
-from package.speed_torque import Speed_Torque
-from database import Engine_db, Environment_db,Gearbox_db,Vehicle_db
-from utils import is_numeric,is_valid
-from package.pancar_class import OutGraps
+from .package.ui import mainWindow, engine, env, vehicle, gearbox, rapor
+from .package.speed_torque import Speed_Torque
+from .database import Engine_db, Environment_db,Gearbox_db,Vehicle_db
+from .utils import is_numeric,is_valid
+from .package.pancar_class import OutGraps
 from fpdf import FPDF
 import matplotlib.pyplot as plt
 import os, webbrowser
-from report.report import rpm_v_graph, torque_rpm_graph, plot_torque_rpm_hp_graph, cs_final_tractive_force_vs_vehicle_speed, only_tractive_effort_vs_vehicle_speed
-from package.calculations import overall_resist_forces, cs_overall_resist_forces, tractive_f, final_force
+from .report.report import rpm_v_graph, torque_rpm_graph, plot_torque_rpm_hp_graph, cs_final_tractive_force_vs_vehicle_speed, only_tractive_effort_vs_vehicle_speed
+from .package.calculations import overall_resist_forces, cs_overall_resist_forces, tractive_f, final_force
 from multiprocessing import Process
 class Pancar(QtWidgets.QMainWindow):
     def __init__(self,path=""):

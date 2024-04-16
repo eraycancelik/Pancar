@@ -1,0 +1,35 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pyqt6 = "*"
+pyqt6-qt6 = "*"
+pyqt6-sip = "*"
+pyside6-addons = "*"
+pyside6-essentials = "*"
+shiboken6 = "*"
+contourpy = "*"
+cycler = "*"
+fonttools = "*"
+kiwisolver = "*"
+matplotlib = "*"
+numpy = "*"
+packaging = "*"
+pillow = "*"
+pyparsing = "*"
+python-dateutil = "*"
+six = "*"
+openpyxl = "*"
+sqlalchemy = "*"
+fpdf = "*"
+pandas = "*"
+plotly = "*"
+kaleido = "*"
+pyside6 = "==6.6.2"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"

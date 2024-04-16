@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import os
 
 # Create a SQLite database file
-database_dir = os.path.join(os.getcwd(), "db")
+database_dir = os.path.join(f"{os.getcwd()}/App", "db")
 app_database = os.path.join(database_dir, "pancar.db")
 
 engine = create_engine("sqlite:///" + app_database, echo=True)
