@@ -129,12 +129,12 @@ class Pancar(QtWidgets.QMainWindow):
         
     
     def create_analytics_report(self):
-        os.remove("only_tractive_effort_vs_vehicle_speed.png")
         WIDTH = 210
         HEIGHT = 297
         pdf = FPDF() # A4 (210 by 297 mm)
         pdf.add_page()
-        pdf.image("./icons/panco_yildizli.png", 0, 0, WIDTH)
+        print(os.getcwd())
+        pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
 
         pdf.set_font('Arial', '', 24)
 
@@ -183,8 +183,8 @@ class Pancar(QtWidgets.QMainWindow):
         # t9.join()
         # t10.join()
         
-        pdf.output("C://Users//erayc//OneDrive//Masaüstü//pancar_rapor.pdf")
-        
+        pdf.output("/home/eray/Desktop/arac_raporu.pdf")
+        #pdf.output("./apor.pdf")
         
     def report_location(self):
         fname = QtWidgets.QFileDialog.getOpenFileName(
@@ -366,7 +366,8 @@ class Pancar(QtWidgets.QMainWindow):
             webbrowser.open(url=self.url)
             
     def onRaporClicked(self):
-        self.report_location()
+        #self.report_location()
+        self.create_analytics_report()
         try:
             # os.remove("only_tractive_effort_vs_vehicle_speed.png")
             # os.remove("cs_final_tractive_force_vs_vehicle_speed.png")
@@ -375,9 +376,9 @@ class Pancar(QtWidgets.QMainWindow):
             # os.remove("torque_rpm_graph.png")
             # os.remove("arac_raporu.pdf")
             
-            
-            # self.create_analytics_report()
             print("deneme tıklandı")
+            
+            
         except :
             print("something went wrong !!!")
         
