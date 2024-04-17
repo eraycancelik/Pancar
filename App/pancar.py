@@ -377,7 +377,9 @@ class Pancar(QtWidgets.QMainWindow):
             # os.remove("arac_raporu.pdf")
             
             print("deneme tıklandı")
-            
+            user=self.ui.car_model.text()
+            print(user)
+
             
         except :
             print("something went wrong !!!")
