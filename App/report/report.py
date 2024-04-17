@@ -12,7 +12,7 @@ def rpm_v_graph(liste, rpm):
     plt.ylabel("Motor devir hızı")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("rpm vs vehicle speed")
-    plt.savefig("rpm_v_graph.png")
+    plt.savefig("./App/report/rpm_v_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("rpm_v_graph.png")
@@ -25,7 +25,7 @@ def torque_rpm_graph(rpm,torque):
     plt.ylabel("Tork (Nm)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("Tork - Motor Devri grafiği")
-    plt.savefig("torque_rpm_graph.png")
+    plt.savefig("./App/report/torque_rpm_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("torque_rpm_graph.png")
@@ -65,7 +65,7 @@ def plot_torque_rpm_hp_graph(rpm,torque):
     _customize_axes(torque,ax1, ax2)
     ax1.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     ax2.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-    plt.savefig("plot_torque_rpm_hp_graph.png")
+    plt.savefig("./App/report/plot_torque_rpm_hp_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("plot_torque_rpm_hp_graph.png")
@@ -81,7 +81,7 @@ def torque_rev_per_gear_graph(geared_torque, rpm):
     plt.ylabel("Tork")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("viteslerdeki tork vs rpm")
-    plt.savefig("torque_rev_per_gear_graph.png")
+    plt.savefig("./App/report/torque_rev_per_gear_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("torque_rev_per_gear_graph.png")
@@ -97,7 +97,7 @@ def geared_tork_vs_road_speed_graph(geared_torque, list):
     plt.ylabel("Tekerlek Torku (Nm)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("Tekerlek Torku vs Yol Hızı")
-    plt.savefig("./geared_tork_vs_road_speed_graph.png")
+    plt.savefig("./App/report/geared_tork_vs_road_speed_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("./geared_tork_vs_road_speed_graph.png")
@@ -113,7 +113,7 @@ def only_tractive_effort_vs_vehicle_speed(tractive_f_list, hiz_list):
     plt.ylabel("Çekiş gücü (N)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("Çekiş Gücü vs Yol Hızı")
-    plt.savefig("only_tractive_effort_vs_vehicle_speed.png")
+    plt.savefig("./App/report/only_tractive_effort_vs_vehicle_speed.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     
@@ -130,7 +130,7 @@ def final_tractive_force_vs_vehicle_speed(self, f_list, hiz_list):
     plt.ylabel("Final Çekiş gücü (N)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("Final Çekiş Gücü vs Yol Hızı")
-    plt.savefig("final_tractive_force_vs_vehicle_speed.png")
+    plt.savefig("./App/report/final_tractive_force_vs_vehicle_speed.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("final_tractive_force_vs_vehicle_speed.png")
@@ -146,7 +146,7 @@ def cs_final_tractive_force_vs_vehicle_speed(f_list, hiz_list):
     plt.ylabel("Final Çekiş gücü (N)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     plt.suptitle("Final Çekiş Gücü vs Yol Hızı")
-    plt.savefig("cs_final_tractive_force_vs_vehicle_speed.png")
+    plt.savefig("./App/report/cs_final_tractive_force_vs_vehicle_speed.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
     # a=plt.savefig("cs_final_tractive_force_vs_vehicle_speed.png")

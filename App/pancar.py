@@ -143,11 +143,11 @@ class Pancar(QtWidgets.QMainWindow):
         plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
         only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
         cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
-        pdf.image("only_tractive_effort_vs_vehicle_speed.png", x=105, y=70, w=95)
-        pdf.image("rpm_v_graph.png", x=8, y=140, w=95)
-        pdf.image("torque_rpm_graph.png", x=8, y=215, w=95)
-        pdf.image("plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
-        pdf.image("cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
+        pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=105, y=70, w=95)
+        pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
+        pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
+        pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
+        pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
         
         
         # t1=Process(target=rpm_v_graph,kwargs={"liste":self.get_current_status().arac_v_list(),"rpm":self.get_current_status().motor_hiz})
