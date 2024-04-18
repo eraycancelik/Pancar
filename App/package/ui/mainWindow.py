@@ -135,7 +135,7 @@ class Ui_VehicleDynamicsApp(object):
         self.car_model.setMinimumSize(QtCore.QSize(200, 20))
         self.car_model.setMaximumSize(QtCore.QSize(200, 20))
         self.car_model.setStyleSheet("color:rgb(0,0,0);\n"
-"background-color: rgb(168, 168, 168);")
+"background-color:(168, 168, 168);")
         self.car_model.setObjectName("car_model")
         self.vehicle_info_input_area.addWidget(self.car_model)
         self.vehicle_info_holder.addLayout(self.vehicle_info_input_area)
