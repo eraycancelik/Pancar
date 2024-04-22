@@ -29,6 +29,7 @@ class OutGraps:
         cekim_ivmesi=9.81,
         
     ): 
+        
         self.arac_ismi=arac_ismi
         self.sanziman_ismi=sanziman_ismi
         self.motor_ismi=motor_ismi

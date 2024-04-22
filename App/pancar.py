@@ -10,6 +10,7 @@ import os, webbrowser
 from .report.report import rpm_v_graph, torque_rpm_graph, plot_torque_rpm_hp_graph, cs_final_tractive_force_vs_vehicle_speed, only_tractive_effort_vs_vehicle_speed
 from .package.calculations import overall_resist_forces, cs_overall_resist_forces, tractive_f, final_force
 from multiprocessing import Process
+
 class Pancar(QtWidgets.QMainWindow):
     def __init__(self,path=""):
         super().__init__()
@@ -17,11 +18,11 @@ class Pancar(QtWidgets.QMainWindow):
         self.ui = mainWindow.Ui_VehicleDynamicsApp()
         self.ui.setupUi(self)
         self.url="www.pancartech.com"
-    
         self.engine_tork_speed_list=self.ui.engine_torque_speed_list
         self.gearbox_list=self.ui.gearbox_list
         self.vehicle_list=self.ui.vehicle_list
         self.environment_list=self.ui.environment_list
+
         
     ################################################################### SIGNALS ###################################################################
         self.ui.vehicle_entry.triggered.connect(self.openVehicle)
@@ -41,20 +42,19 @@ class Pancar(QtWidgets.QMainWindow):
         self.ui.tractiveF_vehiclev.clicked.connect(self.onTractiveF_vehiclev)
         self.ui.tractiveFnet_vehiclev.clicked.connect(self.onTractiveFnet_vehiclev)
     
-    
     ###############################################################################################################################################
     
     def get_current_status(self):
+
         selected_engine=self.engine_tork_speed_list.currentItem().text()
         selected_gearbox=self.gearbox_list.currentItem().text()
         selected_environment=self.environment_list.currentItem().text()
         selected_vehicle=self.vehicle_list.currentItem().text()
-        
         engine_instance=Engine_db()
         environment_instance=Environment_db()
         vehicle_instance=Vehicle_db()
         gearbox_instance=Gearbox_db()
-        
+
         arac_ismi=vehicle_instance.get_specific_vehicle(selected_vehicle).vehicle_name
         sanziman_ismi=gearbox_instance.get_specific_gearbox(selected_gearbox).gearbox_name
         motor_ismi=engine_instance.get_specific_engine(selected_engine).engine_name
@@ -78,7 +78,6 @@ class Pancar(QtWidgets.QMainWindow):
         cd_aerodinamik_direnc_katsayisi=float(vehicle_instance.get_specific_vehicle(selected_vehicle).c_aero)
         v_ruzgar=float(environment_instance.get_specific_environment(selected_environment).wind_speed)
         cekim_ivmesi=float(environment_instance.get_specific_environment(selected_environment).gravitational_force)
-        
         instance=OutGraps(
             arac_ismi=arac_ismi,
             sanziman_ismi=sanziman_ismi,
@@ -105,24 +104,84 @@ class Pancar(QtWidgets.QMainWindow):
         # print(len(instance.tork_times_gear_list()))
         # print(instance.tork_times_gear_list()[0])
         return instance
+    
 
 
 
     #################################################################### SLOTS ####################################################################
     def onEnginev_vehiclev(self):
-        self.get_current_status().rpm_v_graph()
-    
+        try:
+            self.get_current_status().rpm_v_graph()
+            print("******************************************---------------------------------")
+            print(self.ui.user_name.text())
+            print(self.ui.car_model.text())
+        except Exception as e:
+            print("Hata",e)
+            msg=QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
+
     def onTorque_enginev(self):
-        self.get_current_status().torque_rpm_graph()
-    
+        try:
+            self.get_current_status().torque_rpm_graph()
+            
+        except Exception as e:
+            print("Hata",e)
+            msg=QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
+            
     def onTorque_enginev_power(self):
-        self.get_current_status().torque_rpm_power_graph()
+        try:
+            self.get_current_status().torque_rpm_power_graph()
+        except Exception as e:
+            print("Hata",e)
+            msg=QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
     
     def onTractiveF_vehiclev(self):
-        self.get_current_status().only_tractive_effort_vs_vehicle_speed()
+        try:
+            self.get_current_status().only_tractive_effort_vs_vehicle_speed()
+        except Exception as e:
+            print("Hata",e)
+            msg=QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
     
     def onTractiveFnet_vehiclev(self):
-        self.get_current_status().cs_final_tractive_force_vs_vehicle_speed()
+        try:
+            self.get_current_status().cs_final_tractive_force_vs_vehicle_speed()
+        except Exception as e:
+            print("Hata",e)
+            msg=QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
         
         
         
@@ -138,6 +197,12 @@ class Pancar(QtWidgets.QMainWindow):
         pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
 
         pdf.set_font('Arial', '', 24)
+
+        print("*******************************************************************************************")
+        print(self.get_current_status().motor_ismi)
+        print(self.get_current_status().arac_ismi)
+        print(self.get_current_status().cevre_ismi)
+        print(self.get_current_status().sanziman_ismi)
 
         rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
         torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
@@ -184,8 +249,13 @@ class Pancar(QtWidgets.QMainWindow):
         # t8.join()
         # t9.join()
         # t10.join()
+<<<<<<< HEAD
         print()
         pdf.output(f"{isim}.pdf")
+=======
+        
+        pdf.output("/home/eray/Desktop/asarac_raporu.pdf")
+>>>>>>> 46892fdc950748cd55a403024b53f8d6ceb4d9b4
         #pdf.output("./apor.pdf")
         
     def report_location(self, file_name):
@@ -341,20 +411,24 @@ class Pancar(QtWidgets.QMainWindow):
         self.pushButton.clicked.connect(self.onEnvClicked)
     
     def openRapor(self):
+
         self.raporWindow=QtWidgets.QDialog()
         self.ui=rapor.Ui_Rapor()
         self.ui.setupUi(self.raporWindow)
         self.raporWindow.setModal(True)
+        
         self.raporWindow.show()
         self.button=self.ui.rapor_olustur
         self.button.clicked.connect(self.onRaporClicked)
+        
+        
 
         try:
             motor_ismi=self.get_current_status().motor_ismi
-            self.ui.arac.setText(motor_ismi)
+            self.ui.motor.setText(motor_ismi)
             
-            arac_ismi=self.get_current_status().arac_ismi
-            self.ui.motor.setText(arac_ismi)
+            arac=self.get_current_status().arac_ismi
+            self.ui.arac.setText(arac)
             
             sanziman_ismi=self.get_current_status().sanziman_ismi
             self.ui.sanziman.setText(sanziman_ismi)
@@ -362,20 +436,29 @@ class Pancar(QtWidgets.QMainWindow):
             cevre_ismi=self.get_current_status().cevre_ismi    
             self.ui.cevre.setText(cevre_ismi)
             
-        except AttributeError:
+            
+        except :
             self.ui.motor.setText("-")
             self.ui.arac.setText("-")
             self.ui.sanziman.setText("-")
             self.ui.cevre.setText("-")
+            #self.ui.kullanici.setText("-")
+            #self.ui.arac_ismi.setText("-")
             
             
     def openWebSite(self):
             webbrowser.open(url=self.url)
             
     def onRaporClicked(self):
+<<<<<<< HEAD
         
         self.create_analytics_report()
+=======
+        #self.report_location()
+        
+>>>>>>> 46892fdc950748cd55a403024b53f8d6ceb4d9b4
         try:
+            self.create_analytics_report()
             # os.remove("only_tractive_effort_vs_vehicle_speed.png")
             # os.remove("cs_final_tractive_force_vs_vehicle_speed.png")
             # os.remove("plot_torque_rpm_hp_graph.png")
@@ -384,8 +467,6 @@ class Pancar(QtWidgets.QMainWindow):
             # os.remove("arac_raporu.pdf")
             
             print("deneme tıklandı")
-            user=self.ui.car_model.text()
-            print(user)
 
             
         except :
@@ -423,6 +504,7 @@ class Pancar(QtWidgets.QMainWindow):
                 "Tüm alanları doldurunuz!",
                 QtWidgets.QMessageBox.StandardButton.Ok
             )
+            
         else:
             engine_instance=Engine_db(
                 engine_name=motor_ismi,
