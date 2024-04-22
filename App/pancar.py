@@ -129,6 +129,7 @@ class Pancar(QtWidgets.QMainWindow):
         
     
     def create_analytics_report(self):
+        isim=self.report_location("rapor")
         WIDTH = 210
         HEIGHT = 297
         pdf = FPDF() # A4 (210 by 297 mm)
@@ -143,7 +144,8 @@ class Pancar(QtWidgets.QMainWindow):
         plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
         only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
         cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
-        pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=105, y=70, w=95)
+        
+        pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
         pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
         pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
         pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
@@ -182,18 +184,23 @@ class Pancar(QtWidgets.QMainWindow):
         # t8.join()
         # t9.join()
         # t10.join()
-        
-        pdf.output("/home/eray/Desktop/arac_raporu.pdf")
+        print()
+        pdf.output(f"{isim}.pdf")
         #pdf.output("./apor.pdf")
         
-    def report_location(self):
-        fname = QtWidgets.QFileDialog.getOpenFileName(
+    def report_location(self, file_name):
+        default_dir = "/home/qt_user/Documents"
+        default_filename = os.path.join(default_dir, file_name)
+        fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
-            "Open File",
-            "${HOME}",
-            "All Files (*);; Python Files (*.py);; PNG Files (*.png)",
+            "Save File",
+            default_filename,
+            "Files (.pdf)"
         )
-        print(fname)
+        if fname:
+            print(fname)
+        return fname
+
 
     
     ##### LISTE ISLEMLERI #####
@@ -366,7 +373,7 @@ class Pancar(QtWidgets.QMainWindow):
             webbrowser.open(url=self.url)
             
     def onRaporClicked(self):
-        #self.report_location()
+        
         self.create_analytics_report()
         try:
             # os.remove("only_tractive_effort_vs_vehicle_speed.png")
@@ -382,7 +389,8 @@ class Pancar(QtWidgets.QMainWindow):
 
             
         except :
-            print("something went wrong !!!")
+            # print("something went wrong !!!")
+            print("oluşturuldu !!!")
         
         
     def file(self):

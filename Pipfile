@@ -27,7 +27,7 @@ fpdf = "*"
 pandas = "*"
 plotly = "*"
 kaleido = "*"
-pyside6 = "==6.6.2"
+pyside6 = "==6.6.3"
 
 [dev-packages]
 

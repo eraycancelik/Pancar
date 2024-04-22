@@ -24,7 +24,7 @@ def torque_rpm_graph(rpm,torque):
     plt.xlabel("Motor devir hızı (d/d)")
     plt.ylabel("Tork (Nm)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-    plt.suptitle("Tork - Motor Devri grafiği")
+    plt.suptitle("Tork - motor devri grafiği")
     plt.savefig("./App/report/torque_rpm_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
@@ -65,6 +65,7 @@ def plot_torque_rpm_hp_graph(rpm,torque):
     _customize_axes(torque,ax1, ax2)
     ax1.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
     ax2.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
+    plt.suptitle("Motor güç, hız, tork grafiği")
     plt.savefig("./App/report/plot_torque_rpm_hp_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
@@ -96,7 +97,7 @@ def geared_tork_vs_road_speed_graph(geared_torque, list):
     plt.xlabel("Araç Hızı (km/h)")
     plt.ylabel("Tekerlek Torku (Nm)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-    plt.suptitle("Tekerlek Torku vs Yol Hızı")
+    plt.suptitle("Tekerlek torku vs yol Hızı")
     plt.savefig("./App/report/geared_tork_vs_road_speed_graph.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
@@ -112,7 +113,7 @@ def only_tractive_effort_vs_vehicle_speed(tractive_f_list, hiz_list):
     plt.xlabel("Araç Hızı (km/h)")
     plt.ylabel("Çekiş gücü (N)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-    plt.suptitle("Çekiş Gücü vs Yol Hızı")
+    plt.suptitle("Çekiş gücü vs yol hızı")
     plt.savefig("./App/report/only_tractive_effort_vs_vehicle_speed.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
@@ -129,7 +130,7 @@ def final_tractive_force_vs_vehicle_speed(self, f_list, hiz_list):
     plt.xlabel("Araç Hızı (km/h)")
     plt.ylabel("Final Çekiş gücü (N)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-    plt.suptitle("Final Çekiş Gücü vs Yol Hızı")
+    plt.suptitle("Final çekiş gücü vs yol hızı")
     plt.savefig("./App/report/final_tractive_force_vs_vehicle_speed.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
@@ -145,7 +146,7 @@ def cs_final_tractive_force_vs_vehicle_speed(f_list, hiz_list):
     plt.xlabel("Araç Hızı (km/h)")
     plt.ylabel("Final Çekiş gücü (N)")
     plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-    plt.suptitle("Final Çekiş Gücü vs Yol Hızı")
+    plt.suptitle("Final çekiş gücü vs yol hızı")
     plt.savefig("./App/report/cs_final_tractive_force_vs_vehicle_speed.png")
     plt.clf()  # Mevcut figürü temizle
     gc.collect()  # Belleği temizle
