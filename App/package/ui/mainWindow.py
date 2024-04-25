@@ -19,7 +19,7 @@ class Ui_VehicleDynamicsApp(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(VehicleDynamicsApp.sizePolicy().hasHeightForWidth())
         VehicleDynamicsApp.setSizePolicy(sizePolicy)
-        VehicleDynamicsApp.setMinimumSize(QtCore.QSize(890, 617))
+        VehicleDynamicsApp.setMinimumSize(QtCore.QSize(890, 623))
         VehicleDynamicsApp.setMaximumSize(QtCore.QSize(890, 623))
         font = QtGui.QFont()
         font.setFamily("Bahnschrift SemiLight")
@@ -135,7 +135,8 @@ class Ui_VehicleDynamicsApp(object):
         self.car_model.setMinimumSize(QtCore.QSize(200, 20))
         self.car_model.setMaximumSize(QtCore.QSize(200, 20))
         self.car_model.setStyleSheet("color:rgb(0,0,0);\n"
-"background-color:(168, 168, 168);")
+"color:(168, 168, 168);\n"
+"background-color:rgb(210,210,210);")
         self.car_model.setObjectName("car_model")
         self.vehicle_info_input_area.addWidget(self.car_model)
         self.vehicle_info_holder.addLayout(self.vehicle_info_input_area)
@@ -166,7 +167,8 @@ class Ui_VehicleDynamicsApp(object):
         self.user_name.setMinimumSize(QtCore.QSize(200, 20))
         self.user_name.setMaximumSize(QtCore.QSize(200, 20))
         self.user_name.setStyleSheet("color:rgb(0,0,0);\n"
-"background-color: rgb(168, 168, 168);")
+"color:(168, 168, 168);\n"
+"background-color:rgb(210,210,210);")
         self.user_name.setObjectName("user_name")
         self.user_info_holder.addWidget(self.user_name)
         self.verticalLayout_39.addLayout(self.user_info_holder)

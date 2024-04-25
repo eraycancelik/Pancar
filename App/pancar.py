@@ -17,7 +17,7 @@ class Pancar(QtWidgets.QMainWindow):
         self.path=path
         self.ui = mainWindow.Ui_VehicleDynamicsApp()
         self.ui.setupUi(self)
-        self.url="www.pancartech.com"
+        self.URL="www.pancartech.com"
         self.engine_tork_speed_list=self.ui.engine_torque_speed_list
         self.gearbox_list=self.ui.gearbox_list
         self.vehicle_list=self.ui.vehicle_list
@@ -440,7 +440,7 @@ class Pancar(QtWidgets.QMainWindow):
             
             
     def openWebSite(self):
-            webbrowser.open(url=self.url)
+            webbrowser.open(url=self.URL)
             
     def onRaporClicked(self):
         
