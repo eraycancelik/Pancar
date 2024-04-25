@@ -113,8 +113,6 @@ class Pancar(QtWidgets.QMainWindow):
         try:
             self.get_current_status().rpm_v_graph()
             print("******************************************---------------------------------")
-            print(self.ui.user_name.text())
-            print(self.ui.car_model.text())
         except Exception as e:
             print("Hata",e)
             msg=QtWidgets.QMessageBox.warning(
@@ -446,7 +444,6 @@ class Pancar(QtWidgets.QMainWindow):
             
     def onRaporClicked(self):
         
-        self.create_analytics_report()
         try:
             self.create_analytics_report()
             # os.remove("only_tractive_effort_vs_vehicle_speed.png")
