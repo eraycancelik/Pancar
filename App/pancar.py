@@ -65,7 +65,7 @@ class Pancar(QtWidgets.QMainWindow):
         motor_tork_str=(engine_instance.get_specific_engine(selected_engine).torque).split()
         
         gearBox=[float(x) for x in gearBox_str]
-        oran_diferansiyel=float((gearbox_instance.get_specific_gearbox(selected_gearbox).differential_gear_ratio))
+        oran_diferansiyel=float(gearbox_instance.get_specific_gearbox(selected_gearbox).differential_gear_ratio)
         tekerlek_yaricap=float(vehicle_instance.get_specific_vehicle(selected_vehicle).r_dynamic_rolling)
         ao_verimi=float(gearbox_instance.get_specific_gearbox(selected_gearbox).powertrain_efficiency)
         motor_hiz=[float(x) for x in motor_hiz_str]
