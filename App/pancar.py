@@ -249,13 +249,8 @@ class Pancar(QtWidgets.QMainWindow):
         # t8.join()
         # t9.join()
         # t10.join()
-<<<<<<< HEAD
         print()
         pdf.output(f"{isim}.pdf")
-=======
-        
-        pdf.output("/home/eray/Desktop/asarac_raporu.pdf")
->>>>>>> 46892fdc950748cd55a403024b53f8d6ceb4d9b4
         #pdf.output("./apor.pdf")
         
     def report_location(self, file_name):
@@ -450,13 +445,8 @@ class Pancar(QtWidgets.QMainWindow):
             webbrowser.open(url=self.url)
             
     def onRaporClicked(self):
-<<<<<<< HEAD
         
         self.create_analytics_report()
-=======
-        #self.report_location()
-        
->>>>>>> 46892fdc950748cd55a403024b53f8d6ceb4d9b4
         try:
             self.create_analytics_report()
             # os.remove("only_tractive_effort_vs_vehicle_speed.png")
