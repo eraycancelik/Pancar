@@ -29,7 +29,7 @@ class Ui_Dialog(object):
         self.verticalLayout.addWidget(self.label)
         self.progressBar = QtWidgets.QProgressBar(parent=Dialog)
         self.progressBar.setStyleSheet("selection-background-color: rgb(170, 0, 0);")
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.progressBar.setObjectName("progressBar")
         self.verticalLayout.addWidget(self.progressBar)
