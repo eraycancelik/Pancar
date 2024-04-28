@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
 from .package.ui import mainWindow, engine, env, vehicle, gearbox, rapor
 from .package.speed_torque import Speed_Torque
 from .database import Engine_db, Environment_db,Gearbox_db,Vehicle_db
@@ -186,83 +186,54 @@ class Pancar(QtWidgets.QMainWindow):
         
     
     def create_analytics_report(self):
+
         isim=self.report_location("rapor")
-        WIDTH = 210
-        HEIGHT = 297
-        pdf = FPDF() # A4 (210 by 297 mm)
-        pdf.add_page()
-        print(os.getcwd())
-        pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
 
-        pdf.set_font('Arial', '', 24)
+        if isim!=None:
+            WIDTH = 210
+            HEIGHT = 297
+            pdf = FPDF() # A4 (210 by 297 mm)
+            pdf.add_page()
+            print(os.getcwd())
+            pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
+            pdf.set_font('Arial', '', 24)
+    
+            print("*******************************************************************************************")
+            print(self.get_current_status().motor_ismi)
+            print(self.get_current_status().arac_ismi)
+            print(self.get_current_status().cevre_ismi)
+            print(self.get_current_status().sanziman_ismi)
+    
+            rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
+            torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
+            plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
+            only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
+            cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
+            
+            pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
+            pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
+            pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
+            pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
+            pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
+            
+            
+            pdf.output(f"{isim}.pdf")
+        else:
+            pass
 
-        print("*******************************************************************************************")
-        print(self.get_current_status().motor_ismi)
-        print(self.get_current_status().arac_ismi)
-        print(self.get_current_status().cevre_ismi)
-        print(self.get_current_status().sanziman_ismi)
 
-        rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
-        torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-        plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-        only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
-        cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
-        
-        pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
-        pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
-        pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
-        pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
-        pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
-        
-        
-        # t1=Process(target=rpm_v_graph,kwargs={"liste":self.get_current_status().arac_v_list(),"rpm":self.get_current_status().motor_hiz})
-        # t2=Process(target=torque_rpm_graph,kwargs={"rpm":self.get_current_status().motor_hiz,"torque":self.get_current_status().motor_tork})
-        # t3=Process(target=plot_torque_rpm_hp_graph,kwargs={"rpm":self.get_current_status().motor_hiz,"torque":self.get_current_status().motor_tork})
-        # t4=Process(target=cs_final_tractive_force_vs_vehicle_speed,kwargs={"f_list":final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),"hiz_list":self.get_current_status().arac_v_list()})
-        # t5=Process(target=only_tractive_effort_vs_vehicle_speed,kwargs={"tractive_f_list":tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),"hiz_list":self.get_current_status().arac_v_list()})
-        # t6=Process(target=pdf.image,kwargs={"name":"rpm_v_graph.png", "x":10, "y":140, "w":100})
-        # t7=Process(target=pdf.image("torque_rpm_graph.png", x=10, y=200, w=100))
-        # t8=Process(target=pdf.image("plot_torque_rpm_hp_graph.png", x=110, y=140, w=100))
-        # t9=Process(target=pdf.image("cs_final_tractive_force_vs_vehicle_speed.png", x=110, y=200, w=100))
-        # t10=Process(target=pdf.image("only_tractive_effort_vs_vehicle_speed.png", x=100, y=80, w=100))
-        
-        # t1.start()
-        # t2.start()
-        # t3.start()
-        # t4.start()
-        # t5.start()
-        # t6.start()
-        # t7.start()
-        # t8.start()
-        # t9.start()
-        # t10.start()
-        
-        # t1.join()
-        # t2.join()
-        # t3.join()
-        # t4.join()
-        # t5.join()
-        # t6.join()
-        # t7.join()
-        # t8.join()
-        # t9.join()
-        # t10.join()
-        print()
-        pdf.output(f"{isim}.pdf")
-        #pdf.output("./apor.pdf")
-        
     def report_location(self, file_name):
-        default_dir = "/home/qt_user/Documents"
-        default_filename = os.path.join(default_dir, file_name)
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
             "Save File",
-            default_filename,
+            file_name,
             "Files (.pdf)"
-        )
-        if fname:
-            print(fname)
-        return fname
+        )   
+        if fname and fname != "":
+            return fname
+        else:
+            print("File selection canceled")
+            return None
 
 
     
@@ -443,22 +414,13 @@ class Pancar(QtWidgets.QMainWindow):
             webbrowser.open(url=self.URL)
             
     def onRaporClicked(self):
-        
         try:
+            self.raporWindow.close()
             self.create_analytics_report()
-            # os.remove("only_tractive_effort_vs_vehicle_speed.png")
-            # os.remove("cs_final_tractive_force_vs_vehicle_speed.png")
-            # os.remove("plot_torque_rpm_hp_graph.png")
-            # os.remove("rpm_v_graph.png")
-            # os.remove("torque_rpm_graph.png")
-            # os.remove("arac_raporu.pdf")
-            
             print("deneme tıklandı")
 
-            
         except :
-            # print("something went wrong !!!")
-            print("oluşturuldu !!!")
+            print("something went wrong !!!")
         
         
     def file(self):
