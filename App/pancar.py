@@ -218,6 +218,15 @@ class Pancar(QtWidgets.QMainWindow):
             
             
             pdf.output(f"{isim}.pdf")
+
+            msg=QtWidgets.QMessageBox.information(
+                self,
+                "Başarılı",
+                "Araç Performans Raporunuz Başarıyla Oluşturulmuştur.",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
         else:
             pass
 
