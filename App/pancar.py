@@ -1,5 +1,5 @@
 from PyQt6 import QtWidgets, QtCore
-from .package.ui import mainWindow, engine, env, vehicle, gearbox, rapor
+from .package.ui import mainWindow, engine, env, vehicle, gearbox, rapor, report_progress
 from .package.speed_torque import Speed_Torque
 from .database import Engine_db, Environment_db,Gearbox_db,Vehicle_db
 from .utils import is_numeric,is_valid
@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import os, webbrowser
 from .report.report import rpm_v_graph, torque_rpm_graph, plot_torque_rpm_hp_graph, cs_final_tractive_force_vs_vehicle_speed, only_tractive_effort_vs_vehicle_speed
 from .package.calculations import overall_resist_forces, cs_overall_resist_forces, tractive_f, final_force
-from multiprocessing import Process
+from threading import Thread
 
 class Pancar(QtWidgets.QMainWindow):
     def __init__(self,path=""):
@@ -190,7 +190,13 @@ class Pancar(QtWidgets.QMainWindow):
         isim=self.report_location("rapor")
 
         if isim!=None:
-            try:
+            try: 
+                # self.raporProgressWindow=QtWidgets.QDialog()
+                # self.ui=report_progress.Ui_Dialog()
+                # self.ui.setupUi(self.raporProgressWindow)
+                # self.raporProgressWindow.setModal(True)
+                # self.raporProgressWindow.show()
+                
                 WIDTH = 210
                 HEIGHT = 297
                 pdf = FPDF() # A4 (210 by 297 mm)
@@ -205,21 +211,55 @@ class Pancar(QtWidgets.QMainWindow):
                 print(self.get_current_status().cevre_ismi)
                 print(self.get_current_status().sanziman_ismi)
 
-                rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
-                torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-                plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-                only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
-                cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
+                # rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
+                # torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
+                # plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
+                # only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
+                # cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
 
-                pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
-                pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
-                pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
-                pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
-                pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
+                # pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
+                # pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
+                # pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
+                # pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
+                # pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
 
+                t1=Thread(target=rpm_v_graph,kwargs={"liste":self.get_current_status().arac_v_list(),"rpm":self.get_current_status().motor_hiz})
+                t2=Thread(target=torque_rpm_graph,kwargs={"rpm":self.get_current_status().motor_hiz,"torque":self.get_current_status().motor_tork})
+                t3=Thread(target=plot_torque_rpm_hp_graph,kwargs={"rpm":self.get_current_status().motor_hiz,"torque":self.get_current_status().motor_tork})
+                t4=Thread(target=only_tractive_effort_vs_vehicle_speed,kwargs={"tractive_f_list":tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),"hiz_list":self.get_current_status().arac_v_list()})
+                t5=Thread(target=cs_final_tractive_force_vs_vehicle_speed,kwargs={"f_list":final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),"hiz_list":self.get_current_status().arac_v_list()})
+                
+                t6=Thread(target=pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95))
+                t7=Thread(target=pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95))
+                t8=Thread(target=pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95))
+                t9=Thread(target=pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95))
+                t10=Thread(target=pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95))
 
+                t1.start()
+                t2.start()
+                t3.start()
+                t4.start()
+                t5.start()
+                t6.start()
+                t7.start()
+                t8.start()
+                t9.start()
+                t10.start()
+
+                t1.join()
+                t2.join()
+                t3.join()
+                t4.join()
+                t5.join()
+                t6.join()
+                t7.join()
+                t8.join()
+                t9.join()
+                t10.join()
                 pdf.output(f"{isim}.pdf")
-
+                
+                
+                
                 msg=QtWidgets.QMessageBox.information(
                     self,
                     "Başarılı",
