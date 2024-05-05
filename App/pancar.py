@@ -188,23 +188,26 @@ class Pancar(QtWidgets.QMainWindow):
         
         
         
-        
+    def progress_ui(self):
+        self.raporProgressWindow = QtWidgets.QDialog()
+        self.ui = report_progress.Ui_Dialog()
+        self.ui.setupUi(self.raporProgressWindow)
+        self.raporProgressWindow.setModal(True)
+        self.raporProgressWindow.show()
     
 
     def create_analytics_report(self):
-        def progress_ui(self):
-            raporProgressWindow = QtWidgets.QDialog()
-            ui = report_progress.Ui_Dialog()
-            ui.setupUi(raporProgressWindow)
-            raporProgressWindow.setModal(True)
-            ui.progressBar.setMinimum(0)
-            ui.progressBar.setMaximum(100)
-            raporProgressWindow.show()
-
         isim=self.report_location("rapor")
-
         if isim!=None:
-            try: 
+            try:
+                # self.progress_ui()
+
+                self.raporProgressWindow = QtWidgets.QDialog()
+                self.ui = report_progress.Ui_Dialog()
+                self.ui.setupUi(self.raporProgressWindow)
+                self.raporProgressWindow.setModal(True)
+                self.raporProgressWindow.show()
+
                 WIDTH = 210
                 HEIGHT = 297
                 pdf = FPDF() # A4 (210 by 297 mm)
@@ -219,7 +222,6 @@ class Pancar(QtWidgets.QMainWindow):
                     plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
                     only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
                     cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
-
                 async def sub_rpm_v_graph():
                     pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
 
@@ -236,10 +238,10 @@ class Pancar(QtWidgets.QMainWindow):
                     pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
 
                 async def create_pdf():
-
                     pdf.output(f"{isim}.pdf")
 
                 async def message():
+                    self.raporProgressWindow.close()
                     msg=QtWidgets.QMessageBox.information(
                         self,
                         "Başarılı",
