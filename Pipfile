@@ -23,11 +23,11 @@ python-dateutil = "*"
 six = "*"
 openpyxl = "*"
 sqlalchemy = "*"
-fpdf = "*"
 pandas = "*"
 plotly = "*"
 kaleido = "*"
 pyside6 = "==6.6.3"
+fpdf2 = "*"
 
 [dev-packages]
 

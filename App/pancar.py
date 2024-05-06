@@ -1,6 +1,5 @@
 import os, webbrowser
-import asyncio
-import time
+from pprint import pprint
 
 from PyQt6 import QtWidgets, QtCore
 import matplotlib.pyplot as plt
@@ -27,6 +26,11 @@ class Pancar(QtWidgets.QMainWindow):
         self.gearbox_list=self.ui.gearbox_list
         self.vehicle_list=self.ui.vehicle_list
         self.environment_list=self.ui.environment_list
+
+        self.raporProgressWindow = QtWidgets.QDialog()
+        self.rapor_ui = report_progress.Ui_Dialog()
+        self.rapor_ui.setupUi(self.raporProgressWindow)
+        self.raporProgressWindow.setModal(True)
 
         
     ################################################################### SIGNALS ###################################################################
@@ -187,13 +191,6 @@ class Pancar(QtWidgets.QMainWindow):
                 return
         
         
-        
-    def progress_ui(self):
-        self.raporProgressWindow = QtWidgets.QDialog()
-        self.ui = report_progress.Ui_Dialog()
-        self.ui.setupUi(self.raporProgressWindow)
-        self.raporProgressWindow.setModal(True)
-        self.raporProgressWindow.show()
     
 
     def func_rpm_v_graph(self):
@@ -222,6 +219,23 @@ class Pancar(QtWidgets.QMainWindow):
         if msg==QtWidgets.QMessageBox.StandardButton.Ok:
             return
         
+    def denem(self):
+        vites=1
+        for i in self.get_current_status().arac_v_list():
+            print("-----------------------------------------------------------------------------------")
+            print(f"{vites}. vitesteki maximum araç hızı :",max(i))
+            vites+=1
+            
+    def convert(self):
+        vites=1
+        main_list=[]
+        for i in self.get_current_status().arac_v_list():
+            sub_list=[f"{vites}. Vites",str(max(i))]
+            main_list.append(sub_list)
+            vites+=1
+        return main_list
+
+
     def pdf_report(self,isim):
         try:
             WIDTH = 210
@@ -242,6 +256,34 @@ class Pancar(QtWidgets.QMainWindow):
             print("buraya kadar sorunsuz geldik")
             pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
             print("buraya kadar sorunsuz geldik")
+            
+            pdf.add_page()
+            pprint(self.get_current_status().arac_v_list())
+            pdf.set_font('Arial', 'B', 16)
+            self.denem()
+    
+            
+            TABLE_DATA = self.convert()
+            
+            print(TABLE_DATA)
+            pdf.set_fill_color(200, 220, 255)
+            pdf.set_draw_color(0, 0, 0)
+            cell_width = 40
+            cell_height = 10
+
+            # Başlık satırı
+            pdf.set_font("Arial", style="B", size=12)
+            pdf.cell(cell_width, cell_height, "Vites", border=1)
+            pdf.cell(cell_width, cell_height, "Araç hizi (km/h)", border=1)
+            pdf.ln()
+
+            # Veri satırları
+            pdf.set_font("Arial", size=12)
+            for row in TABLE_DATA:
+                for item in row:
+                    pdf.cell(cell_width, cell_height, item, border=1)
+                pdf.ln()
+
             pdf.output(f"{isim}.pdf")
 
         except:
@@ -258,13 +300,8 @@ class Pancar(QtWidgets.QMainWindow):
             pass
 
     def create_analytics_report(self):
-        self.raporProgressWindow = QtWidgets.QDialog()
-        self.ui = report_progress.Ui_Dialog()
-        self.ui.setupUi(self.raporProgressWindow)
-        self.raporProgressWindow.setModal(True)
 
         isim=self.report_location("Performans Raporu")
-        self.progress_ui()
         self.raporProgressWindow.show()
         self.func_rpm_v_graph()
         self.func_torque_rpm_graph()
@@ -274,6 +311,7 @@ class Pancar(QtWidgets.QMainWindow):
         self.pdf_report(isim)
         self.raporProgressWindow.close()
         self.message()
+
     def report_location(self, file_name):
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
