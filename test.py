@@ -1,27 +1,54 @@
-from PyQt6 import QtWidgets, QtCore
-from App.package.ui import report_progress
+import sys
+import time
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QProgressBar
 
-def update_progress(ui):
-    for i in range(10):
-        ui.progressBar.setValue(i)
-        QtCore.QThread.msleep(1000)  # 1000 milisaniye (1 saniye) bekle
+class WorkerThread(QThread):
+    progress_update = pyqtSignal(int)
+
+    def run(self):
+        for i in range(101):
+            time.sleep(0.1)  # Simülasyon amaçlı bekleme
+            self.progress_update.emit(i)
+            print(i)
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("QThread and QProgressBar Example")
+        self.setGeometry(100, 100, 400, 200)
+
+        # Ana widget oluştur
+        main_widget = QWidget()
+        self.setCentralWidget(main_widget)
+
+        # Ana layout oluştur
+        layout = QVBoxLayout()
+        main_widget.setLayout(layout)
+
+        # İlerleme çubuğu oluştur
+        self.progress_bar = QProgressBar()
+        layout.addWidget(self.progress_bar)
+
+        # Başlat düğmesi oluştur
+        self.start_button = QPushButton("Başlat")
+        self.start_button.clicked.connect(self.start_worker_thread)
+        layout.addWidget(self.start_button)
+
+    def start_worker_thread(self):
+        # İş parçacığını oluştur ve başlat
+        self.worker_thread = WorkerThread()
+        self.worker_thread.progress_update.connect(self.update_progress_bar)
+        self.worker_thread.start()
+        
+
+    def update_progress_bar(self, value):
+        # İlerleme çubuğunu güncelle
+        self.progress_bar.setValue(value)
+        
 
 if __name__ == "__main__":
-    import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    app.setStyle("Fusion")
-
-    raporProgressWindow = QtWidgets.QDialog()
-    ui = report_progress.Ui_Dialog()
-    ui.setupUi(raporProgressWindow)
-    raporProgressWindow.setModal(True)
-    ui.progressBar.setMaximum(10)
-    ui.progressBar.setMinimum(0)
-    ui.progressBar.setValue(0)
-    raporProgressWindow.show()
-
-    # update_progress fonksiyonu QTimer kullanılmadan çağrılıyor
-    update_progress(ui)
-
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
     sys.exit(app.exec())

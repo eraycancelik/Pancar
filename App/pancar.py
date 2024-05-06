@@ -196,91 +196,84 @@ class Pancar(QtWidgets.QMainWindow):
         self.raporProgressWindow.show()
     
 
-    def create_analytics_report(self):
-        isim=self.report_location("rapor")
-        if isim!=None:
-            try:
-                # self.progress_ui()
-
-                self.raporProgressWindow = QtWidgets.QDialog()
-                self.ui = report_progress.Ui_Dialog()
-                self.ui.setupUi(self.raporProgressWindow)
-                self.raporProgressWindow.setModal(True)
-                self.raporProgressWindow.show()
-
-                WIDTH = 210
-                HEIGHT = 297
-                pdf = FPDF() # A4 (210 by 297 mm)
-                pdf.add_page()
-                print(os.getcwd())
-                pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
-                pdf.set_font('Arial', '', 24)
-
-                async def create():
-                    rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
-                    torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-                    plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-                    only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
-                    cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
-                async def sub_rpm_v_graph():
-                    pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
-
-                async def sub_only_tractive_effort_vs_vehicle_speed():
-                    pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png",x=55, y=60, w=95)
-
-                async def sub_torque_rpm_graph():
-                    pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
-
-                async def sub_plot_torque_rpm_hp_graph():
-                    pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
-
-                async def sub_cs_final_tractive_force_vs_vehicle_speed():
-                    pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
-
-                async def create_pdf():
-                    pdf.output(f"{isim}.pdf")
-
-                async def message():
-                    self.raporProgressWindow.close()
-                    msg=QtWidgets.QMessageBox.information(
-                        self,
-                        "Başarılı",
-                        "Performans Raporunuz Başarıyla Oluşturulmuştur.",
-                        QtWidgets.QMessageBox.StandardButton.Ok
-                    )
-                    if msg==QtWidgets.QMessageBox.StandardButton.Ok:
-                        return
-                async def sub_main():
-                    await create()
-                    await sub_rpm_v_graph()
-                    await sub_plot_torque_rpm_hp_graph()
-                    await sub_cs_final_tractive_force_vs_vehicle_speed()
-                    await sub_only_tractive_effort_vs_vehicle_speed()
-                    await sub_torque_rpm_graph()
-                    await create_pdf()
-                    await message()
+    def func_rpm_v_graph(self):
+        rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
+    
+    def func_torque_rpm_graph(self):
+        torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
+    
+    def func_plot_torque_rpm_hp_graph(self):
+        plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
+    
+    def func_cs_final_tractive_force_vs_vehicle_speed(self):
+        cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
+    
+    def func_only_tractive_effort_vs_vehicle_speed(self):
+        only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
+            
+    
+    def message(self):
+        msg=QtWidgets.QMessageBox.information(
+            self,
+            "Başarılı",
+            "Performans Raporunuz Başarıyla Oluşturulmuştur.",
+            QtWidgets.QMessageBox.StandardButton.Ok
+        )
+        if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+            return
         
-                # PyQt'nin kendi olay döngüsünü kullanarak işlevi çağırın
-                loop = asyncio.get_event_loop()
-                loop.run_until_complete(sub_main())
-                
-                
-                #loop=asyncio.get_event_loop()
-                #loop.run_until_complete(sub_main())
+    def pdf_report(self,isim):
+        try:
+            WIDTH = 210
+            HEIGHT = 297
+            pdf = FPDF() # A4 (210 by 297 mm)
+            pdf.add_page()
+            print(os.getcwd())
+            pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
+            pdf.set_font('Arial', '', 24)
 
-            except:
-                msg=QtWidgets.QMessageBox.warning(
-                    self,
-                    "Başarısız",
-                    "Performans raporunuz oluşturulurken bir hata oluştu.",
-                    QtWidgets.QMessageBox.StandardButton.Ok
-                )
-                if msg==QtWidgets.QMessageBox.StandardButton.Ok:
-                    return
+            pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
+            print("buraya kadar sorunsuz geldik")
+            pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png",x=55, y=60, w=95)
+            print("buraya kadar sorunsuz geldik")
+            pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
+            print("buraya kadar sorunsuz geldik")
+            pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
+            print("buraya kadar sorunsuz geldik")
+            pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
+            print("buraya kadar sorunsuz geldik")
+            pdf.output(f"{isim}.pdf")
+
+        except:
+            print("ne oldu ki")
+            msg=QtWidgets.QMessageBox.warning(
+                self,
+                "Başarısız",
+                "Performans raporunuz oluşturulurken bir hata oluştu.",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
+                return
         else:
             pass
 
+    def create_analytics_report(self):
+        self.raporProgressWindow = QtWidgets.QDialog()
+        self.ui = report_progress.Ui_Dialog()
+        self.ui.setupUi(self.raporProgressWindow)
+        self.raporProgressWindow.setModal(True)
 
+        isim=self.report_location("Performans Raporu")
+        self.progress_ui()
+        self.raporProgressWindow.show()
+        self.func_rpm_v_graph()
+        self.func_torque_rpm_graph()
+        self.func_plot_torque_rpm_hp_graph()
+        self.func_cs_final_tractive_force_vs_vehicle_speed()
+        self.func_only_tractive_effort_vs_vehicle_speed()
+        self.pdf_report(isim)
+        self.raporProgressWindow.close()
+        self.message()
     def report_location(self, file_name):
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
