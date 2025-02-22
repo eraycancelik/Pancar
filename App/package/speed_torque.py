@@ -1,4 +1,4 @@
-import openpyxl
+import csv
 
 
 class Speed_Torque:
@@ -6,13 +6,20 @@ class Speed_Torque:
         self.file = file
 
     def get_rpm_torque_list(self):
-        dataframe = (openpyxl.load_workbook(self.file)).active
         all_list = []
-        for row in range(0, dataframe.max_row):
-            for col in dataframe.iter_cols(1, dataframe.max_column):
-                val = str(col[row].value)
-                if val != "None":
-                    all_list.append(val)
+        try:
+            with open(self.file, 'r') as csvfile:
+                csv_reader = csv.reader(csvfile)
+                for row in csv_reader:
+                    # Boş satırları ve None değerleri atla
+                    if row and row[0] != "None":
+                        all_list.extend(row)
+                        
+        except Exception as e:
+            print(f"CSV okuma hatası: {str(e)}")
+            return []
+
+        # Tek sayıda veri varsa son elemanı sil
         if len(all_list) % 2 == 1:
             del all_list[-1]
         return all_list
@@ -27,14 +34,18 @@ class Speed_Torque:
         all_list = self.get_rpm_torque_list()
         new_all = []
         for i in all_list:
-            new_all.append(i.split())
+            # CSV'den gelen değerleri böl
+            new_all.append(i.strip().split())
         return new_all
 
     def out(self):
         all_list = self.sep_vals()
         new_all = []
         for item in all_list:
-            new_all.append(item[0])
+            # Eğer boş liste değilse ilk elemanı al
+            if item:
+                new_all.append(item[0])
+            
         speed_list = []
         torque_list = []
         a = 0

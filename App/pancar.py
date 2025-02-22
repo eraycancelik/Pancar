@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtGui
 from .package.ui import mainWindow, engine, env, vehicle, gearbox, rapor
 from .package.speed_torque import Speed_Torque
 from .database import Engine_db, Environment_db,Gearbox_db,Vehicle_db
@@ -10,8 +10,13 @@ import os, webbrowser
 from .report.report import rpm_v_graph, torque_rpm_graph, plot_torque_rpm_hp_graph, cs_final_tractive_force_vs_vehicle_speed, only_tractive_effort_vs_vehicle_speed
 from .package.calculations import overall_resist_forces, cs_overall_resist_forces, tractive_f, final_force
 from multiprocessing import Process
+from PyQt6.QtWidgets import QProgressDialog
+from PyQt6.QtCore import Qt, QTimer
 
 class Pancar(QtWidgets.QMainWindow):
+    DEFAULT_DIR = "/home/qt_user/Documents"
+    PDF_WIDTH = 210
+    PDF_HEIGHT = 297
     def __init__(self,path=""):
         super().__init__()
         self.path=path
@@ -23,6 +28,38 @@ class Pancar(QtWidgets.QMainWindow):
         self.vehicle_list=self.ui.vehicle_list
         self.environment_list=self.ui.environment_list
 
+        # İkonu bir kez yükle
+        self.window_icon = QtGui.QIcon("./Pancar.ico")
+        
+        # MenuBar stilini ayarla
+        menubar_style = """
+            QMenuBar {
+                min-height: 10px;
+                background-color: rgb(28,28,28);
+            }
+            QMenuBar::item {
+                padding: 8px 12px;
+                margin: 2px;
+                color: white;
+            }
+            QMenuBar::item:selected {
+                background-color: rgb(45,45,45);
+                border-radius: 4px;
+            }
+            QMenu {
+                background-color: rgb(28,28,28);
+                color: white;
+                padding: 5px;
+            }
+            QMenu::item {
+                padding: 6px 25px 6px 20px;
+                border-radius: 3px;
+            }
+            QMenu::item:selected {
+                background-color: rgb(45,45,45);
+            }
+        """
+        self.ui.menubar.setStyleSheet(menubar_style)
         
     ################################################################### SIGNALS ###################################################################
         self.ui.vehicle_entry.triggered.connect(self.openVehicle)
@@ -45,11 +82,14 @@ class Pancar(QtWidgets.QMainWindow):
     ###############################################################################################################################################
     
     def get_current_status(self):
-
-        selected_engine=self.engine_tork_speed_list.currentItem().text()
-        selected_gearbox=self.gearbox_list.currentItem().text()
-        selected_environment=self.environment_list.currentItem().text()
-        selected_vehicle=self.vehicle_list.currentItem().text()
+        try:
+            selected_engine = self.engine_tork_speed_list.currentItem().text()
+            selected_gearbox = self.gearbox_list.currentItem().text()
+            selected_environment = self.environment_list.currentItem().text()
+            selected_vehicle = self.vehicle_list.currentItem().text()
+        except AttributeError:
+            raise ValueError("Lütfen tüm listelerde seçim yapınız")
+        
         engine_instance=Engine_db()
         environment_instance=Environment_db()
         vehicle_instance=Vehicle_db()
@@ -111,34 +151,50 @@ class Pancar(QtWidgets.QMainWindow):
     #################################################################### SLOTS ####################################################################
     def onEnginev_vehiclev(self):
         try:
+            # Grafiği oluştur
+            plt.figure()
             self.get_current_status().rpm_v_graph()
-            print("******************************************---------------------------------")
+            
+            # Grafik penceresini Qt widget'ına dönüştür
+            fig_manager = plt.get_current_fig_manager()
+            fig_manager.window.setWindowFlags(
+                Qt.WindowType.WindowStaysOnTopHint |  # Her zaman üstte
+                Qt.WindowType.Window                   # Normal pencere özellikleri
+            )
+            fig_manager.window.setWindowModality(Qt.WindowModality.ApplicationModal)  # Ana pencereyi kilitle
+            plt.show()
+            
         except Exception as e:
-            print("Hata",e)
-            msg=QtWidgets.QMessageBox.warning(
+            print("Hata", e)
+            msg = QtWidgets.QMessageBox.warning(
                 self,
                 "Hata",
                 "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
                 QtWidgets.QMessageBox.StandardButton.Ok
             )
-            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
-                return
 
     def onTorque_enginev(self):
         try:
+            plt.figure()
             self.get_current_status().torque_rpm_graph()
             
+            fig_manager = plt.get_current_fig_manager()
+            fig_manager.window.setWindowFlags(
+                Qt.WindowType.WindowStaysOnTopHint |
+                Qt.WindowType.Window
+            )
+            fig_manager.window.setWindowModality(Qt.WindowModality.ApplicationModal)
+            plt.show()
+            
         except Exception as e:
-            print("Hata",e)
-            msg=QtWidgets.QMessageBox.warning(
+            print("Hata", e)
+            msg = QtWidgets.QMessageBox.warning(
                 self,
                 "Hata",
                 "Bütün tablolardan seçim yapmadan grafik oluşturamazsınız!",
                 QtWidgets.QMessageBox.StandardButton.Ok
             )
-            if msg==QtWidgets.QMessageBox.StandardButton.Ok:
-                return
-            
+
     def onTorque_enginev_power(self):
         try:
             self.get_current_status().torque_rpm_power_graph()
@@ -186,73 +242,88 @@ class Pancar(QtWidgets.QMainWindow):
         
     
     def create_analytics_report(self):
-        isim=self.report_location("rapor")
-        WIDTH = 210
-        HEIGHT = 297
-        pdf = FPDF() # A4 (210 by 297 mm)
-        pdf.add_page()
-        print(os.getcwd())
-        pdf.image("./App/icons/panco_yildizli.png", 0, 0, WIDTH)
+        try:
+            isim = self.report_location("rapor")
+            if not isim:  # Kullanıcı iptal ettiyse
+                return
+                
+            # Progress dialog oluştur
+            self.progress = QProgressDialog("Rapor hazırlanıyor...", "İptal", 0, 100, self)
+            self.progress.setWindowModality(Qt.WindowModality.WindowModal)
+            self.progress.setWindowTitle("Lütfen Bekleyin")
+            self.progress.setAutoClose(True)
+            self.progress.setCancelButton(None)  # İptal butonunu kaldır
+            self.progress.setMinimumDuration(0)  # Hemen göster
+            self.progress.show()
+            
+            def update_progress(value):
+                self.progress.setValue(value)
+                QtWidgets.QApplication.processEvents()  # UI'ı güncelle
+            
+            update_progress(10)
+            
+            # PDF oluşturma
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.image("./App/icons/panco_yildizli.png", 0, 0, self.PDF_WIDTH)
+            pdf.set_font('Arial', '', 24)
+            
+            update_progress(20)
+            
+            # Grafikleri oluştur
+            rpm_v_graph(liste=self.get_current_status().arac_v_list(),
+                       rpm=self.get_current_status().motor_hiz)
+            update_progress(35)
+            
+            torque_rpm_graph(rpm=self.get_current_status().motor_hiz,
+                           torque=self.get_current_status().motor_tork)
+            update_progress(50)
+            
+            plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,
+                                   torque=self.get_current_status().motor_tork)
+            update_progress(65)
+            
+            only_tractive_effort_vs_vehicle_speed(
+                tractive_f_list=tractive_f(
+                    tork_list=self.get_current_status().tork_times_gear_list(),
+                    r_w=self.get_current_status().tekerlek_yaricap,
+                    t_efficiency=self.get_current_status().ao_verimi),
+                hiz_list=self.get_current_status().arac_v_list())
+            update_progress(80)
+            
+            cs_final_tractive_force_vs_vehicle_speed(
+                f_list=final_force(
+                    resist_f=self.get_current_status().cs_resist_forces(),
+                    tractive_f=tractive_f(
+                        tork_list=self.get_current_status().tork_times_gear_list(),
+                        r_w=self.get_current_status().tekerlek_yaricap,
+                        t_efficiency=self.get_current_status().ao_verimi)),
+                hiz_list=self.get_current_status().arac_v_list())
+            update_progress(90)
+            
+            # Grafikleri PDF'e ekle
+            pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
+            pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
+            pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
+            pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
+            pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
+            
+            # PDF'i kaydet
+            pdf.output(f"{isim}.pdf")
+            update_progress(100)
+            
+            # Başarı mesajı göster
+            self.show_success_message("Başarılı", "Rapor başarıyla oluşturuldu!")
+            
+            # Geçici dosyaları temizle
+            self.cleanup_temp_files()
+            
+        except Exception as e:
+            self.show_error_message("Hata", f"Rapor oluşturulurken bir hata oluştu: {str(e)}")
+            return
 
-        pdf.set_font('Arial', '', 24)
-
-        print("*******************************************************************************************")
-        print(self.get_current_status().motor_ismi)
-        print(self.get_current_status().arac_ismi)
-        print(self.get_current_status().cevre_ismi)
-        print(self.get_current_status().sanziman_ismi)
-
-        rpm_v_graph(liste=self.get_current_status().arac_v_list(),rpm=self.get_current_status().motor_hiz)
-        torque_rpm_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-        plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,torque=self.get_current_status().motor_tork)
-        only_tractive_effort_vs_vehicle_speed(tractive_f_list=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),hiz_list=self.get_current_status().arac_v_list())
-        cs_final_tractive_force_vs_vehicle_speed(f_list=final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),hiz_list=self.get_current_status().arac_v_list())
-        
-        pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
-        pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
-        pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
-        pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
-        pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
-        
-        
-        # t1=Process(target=rpm_v_graph,kwargs={"liste":self.get_current_status().arac_v_list(),"rpm":self.get_current_status().motor_hiz})
-        # t2=Process(target=torque_rpm_graph,kwargs={"rpm":self.get_current_status().motor_hiz,"torque":self.get_current_status().motor_tork})
-        # t3=Process(target=plot_torque_rpm_hp_graph,kwargs={"rpm":self.get_current_status().motor_hiz,"torque":self.get_current_status().motor_tork})
-        # t4=Process(target=cs_final_tractive_force_vs_vehicle_speed,kwargs={"f_list":final_force(resist_f=self.get_current_status().cs_resist_forces(),tractive_f=tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi)),"hiz_list":self.get_current_status().arac_v_list()})
-        # t5=Process(target=only_tractive_effort_vs_vehicle_speed,kwargs={"tractive_f_list":tractive_f(tork_list=self.get_current_status().tork_times_gear_list(),r_w=self.get_current_status().tekerlek_yaricap,t_efficiency=self.get_current_status().ao_verimi,),"hiz_list":self.get_current_status().arac_v_list()})
-        # t6=Process(target=pdf.image,kwargs={"name":"rpm_v_graph.png", "x":10, "y":140, "w":100})
-        # t7=Process(target=pdf.image("torque_rpm_graph.png", x=10, y=200, w=100))
-        # t8=Process(target=pdf.image("plot_torque_rpm_hp_graph.png", x=110, y=140, w=100))
-        # t9=Process(target=pdf.image("cs_final_tractive_force_vs_vehicle_speed.png", x=110, y=200, w=100))
-        # t10=Process(target=pdf.image("only_tractive_effort_vs_vehicle_speed.png", x=100, y=80, w=100))
-        
-        # t1.start()
-        # t2.start()
-        # t3.start()
-        # t4.start()
-        # t5.start()
-        # t6.start()
-        # t7.start()
-        # t8.start()
-        # t9.start()
-        # t10.start()
-        
-        # t1.join()
-        # t2.join()
-        # t3.join()
-        # t4.join()
-        # t5.join()
-        # t6.join()
-        # t7.join()
-        # t8.join()
-        # t9.join()
-        # t10.join()
-        print()
-        pdf.output(f"{isim}.pdf")
-        #pdf.output("./apor.pdf")
-        
     def report_location(self, file_name):
-        default_dir = "/home/qt_user/Documents"
+        default_dir = self.DEFAULT_DIR
         default_filename = os.path.join(default_dir, file_name)
         fname, _ = QtWidgets.QFileDialog.getSaveFileName(
             self,
@@ -264,8 +335,26 @@ class Pancar(QtWidgets.QMainWindow):
             print(fname)
         return fname
 
+    def show_error_message(self, title, message):
+        """Genel hata mesajı gösterme fonksiyonu"""
+        msg = QtWidgets.QMessageBox.warning(
+            self,
+            title,
+            message,
+            QtWidgets.QMessageBox.StandardButton.Ok
+        )
+        return msg
 
-    
+    def show_success_message(self, title, message):
+        """Genel başarı mesajı gösterme fonksiyonu"""
+        msg = QtWidgets.QMessageBox.information(
+            self,
+            title,
+            message,
+            QtWidgets.QMessageBox.StandardButton.Ok
+        )
+        return msg
+
     ##### LISTE ISLEMLERI #####
     def update_gearbox_list(self):
         gearbox_db = Gearbox_db()
@@ -316,44 +405,136 @@ class Pancar(QtWidgets.QMainWindow):
             self.engine_tork_speed_list.addItem("Ortam kaydı bulunamadı.")
             
     def delete_engine(self):
-        current_item = self.engine_tork_speed_list.currentItem()
-        query=Engine_db()
-        if current_item is not None:
-            query.delete_engine(engine=current_item.text())
-            print(f"{current_item.text()} is deleted")
-        else:
-            print("Herhangi bir öğe seçilmedi.")
-        self.update_engine_list()
+        try:
+            selected_engine = self.engine_tork_speed_list.currentItem().text()
+            
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowTitle("Silme Onayı")
+            msg.setText(f'{selected_engine} motorunu silmek istediğinizden emin misiniz?')
+            msg.setWindowIcon(self.window_icon)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Question)  # Soru işareti ikonu ekle
+            
+            sil_button = msg.addButton('Sil', QtWidgets.QMessageBox.ButtonRole.YesRole)
+            iptal_button = msg.addButton('İptal', QtWidgets.QMessageBox.ButtonRole.NoRole)
+            msg.setDefaultButton(iptal_button)
+            
+            msg.exec()
+            
+            if msg.clickedButton() == sil_button:
+                engine_instance = Engine_db()
+                engine_instance.delete_engine(selected_engine)
+                self.update_engine_list()
+                
+                QtWidgets.QMessageBox.information(
+                    self,
+                    "Başarılı",
+                    f"{selected_engine} motoru başarıyla silinmiştir",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+        except:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Lütfen silmek istediğiniz motoru seçiniz!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
 
     def delete_gearbox(self):
-        current_item = self.gearbox_list.currentItem()
-        query=Gearbox_db()
-        if current_item is not None:
-            query.delete_gearbox(gearbox=current_item.text())
-            print(f"{current_item.text()} is deleted")
-        else:
-            print("Herhangi bir öğe seçilmedi.")
-        self.update_gearbox_list()
-        
+        try:
+            selected_gearbox = self.gearbox_list.currentItem().text()
+            
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowTitle("Silme Onayı")
+            msg.setText(f'{selected_gearbox} şanzımanını silmek istediğinizden emin misiniz?')
+            msg.setWindowIcon(self.window_icon)
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Question)  # Soru işareti ikonu ekle
+            
+            sil_button = msg.addButton('Sil', QtWidgets.QMessageBox.ButtonRole.YesRole)
+            iptal_button = msg.addButton('İptal', QtWidgets.QMessageBox.ButtonRole.NoRole)
+            msg.setDefaultButton(iptal_button)
+            
+            msg.exec()
+            
+            if msg.clickedButton() == sil_button:
+                gearbox_instance = Gearbox_db()
+                gearbox_instance.delete_gearbox(selected_gearbox)
+                self.update_gearbox_list()
+                
+                QtWidgets.QMessageBox.information(
+                    self,
+                    "Başarılı",
+                    f"{selected_gearbox} şanzımanı başarıyla silinmiştir",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+        except:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Lütfen silmek istediğiniz şanzımanı seçiniz!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+
     def delete_environment(self):
-        current_item = self.environment_list.currentItem()
-        query=Environment_db()
-        if current_item is not None:
-            query.delete_environment(environment=current_item.text())
-            print(f"{current_item.text()} is deleted")
-        else:
-            print("Herhangi bir öğe seçilmedi.")
-        self.update_environment_list()
-        
+        try:
+            selected_environment = self.environment_list.currentItem().text()
+            
+            reply = QtWidgets.QMessageBox.question(
+                self,
+                'Silme Onayı',
+                f'{selected_environment} ortamını silmek istediğinizden emin misiniz?',
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
+                QtWidgets.QMessageBox.StandardButton.No
+            )
+            
+            if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+                environment_instance = Environment_db()
+                environment_instance.delete_environment(selected_environment)
+                self.update_environment_list()
+                
+                QtWidgets.QMessageBox.information(
+                    self,
+                    "Başarılı",
+                    f"{selected_environment} ortamı başarıyla silinmiştir",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+        except:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Lütfen silmek istediğiniz ortamı seçiniz!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
+
     def delete_vehicle(self):
-        current_item = self.vehicle_list.currentItem()
-        query=Vehicle_db()
-        if current_item is not None:
-            query.delete_vehicle(vehicle=current_item.text())
-            print(f"{current_item.text()} is deleted")
-        else:
-            print("Herhangi bir öğe seçilmedi.")
-        self.update_vehicle_list()
+        try:
+            selected_vehicle = self.vehicle_list.currentItem().text()
+            
+            reply = QtWidgets.QMessageBox.question(
+                self,
+                'Silme Onayı',
+                f'{selected_vehicle} aracını silmek istediğinizden emin misiniz?',
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
+                QtWidgets.QMessageBox.StandardButton.No
+            )
+            
+            if reply == QtWidgets.QMessageBox.StandardButton.Yes:
+                vehicle_instance = Vehicle_db()
+                vehicle_instance.delete_vehicle(selected_vehicle)
+                self.update_vehicle_list()
+                
+                QtWidgets.QMessageBox.information(
+                    self,
+                    "Başarılı",
+                    f"{selected_vehicle} aracı başarıyla silinmiştir",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+        except:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Hata",
+                "Lütfen silmek istediğiniz aracı seçiniz!",
+                QtWidgets.QMessageBox.StandardButton.Ok
+            )
 
     def openEngine(self):
         self.engineWindow=QtWidgets.QDialog()
@@ -443,66 +624,89 @@ class Pancar(QtWidgets.QMainWindow):
             webbrowser.open(url=self.URL)
             
     def onRaporClicked(self):
-        
         try:
             self.create_analytics_report()
-            # os.remove("only_tractive_effort_vs_vehicle_speed.png")
-            # os.remove("cs_final_tractive_force_vs_vehicle_speed.png")
-            # os.remove("plot_torque_rpm_hp_graph.png")
-            # os.remove("rpm_v_graph.png")
-            # os.remove("torque_rpm_graph.png")
-            # os.remove("arac_raporu.pdf")
+            # Rapor başarıyla oluşturulduktan sonra rapor penceresini kapat
+            self.raporWindow.close()
+            print("Rapor başarıyla oluşturuldu")
             
-            print("deneme tıklandı")
-
-            
-        except :
-            # print("something went wrong !!!")
-            print("oluşturuldu !!!")
+        except Exception as e:
+            print(f"Hata oluştu: {str(e)}")
         
         
     def file(self):
-        file_filter="Excel File (*.xlsx *.xls);"
-        response=QtWidgets.QFileDialog.getOpenFileName(
+        file_filter = "CSV File (*.csv)"  # Düzeltilmiş filtre
+        response = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
             caption="Motor hız-tork tablosu",
             directory=os.getcwd(),
             filter=file_filter,
-            initialFilter="Excel File (*.xlsx *.xls)"
+            initialFilter=file_filter  # initialFilter da CSV olarak değiştirildi
         )
-        path=str(response[0])
+        path = str(response[0])
         self.ui.label_3.setText(path)
-        self.path=path
-        if self.path!="":
-            self.pushButton.setEnabled(True)
-    
+        self.path = path
+        
+        # Dosya seçildiyse verileri oku
+        if self.path:
+            try:
+                engine = Speed_Torque(file=self.path)
+                self.speed_list = engine.out()[0]  # Hız listesi
+                self.torque_list = engine.out()[1]  # Tork listesi
+                self.pushButton.setEnabled(True)
+            except Exception as e:
+                print(f"Dosya okuma hatası: {str(e)}")
+                self.pushButton.setEnabled(False)
+
     def onEngineClicked(self):
-        dosya_yolu=self.path
-        engine=Speed_Torque(file=dosya_yolu)
-        speed=engine.out()[0]
-        torque=engine.out()[1]
-        speed_string=' '.join(str(e) for e in speed)
-        torque_string=' '.join(str(e) for e in torque)
-        motor_ismi=self.ui.motor_isim.text()
-        if not motor_ismi or not speed_string or not torque_string:
+        try:
+            motor_ismi = self.ui.motor_isim.text()
+            
+            if not hasattr(self, 'speed_list') or not hasattr(self, 'torque_list'):
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Hata",
+                    "Lütfen önce motor verilerini yükleyin!",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+                return
+            
+            speed_string = ' '.join(str(e) for e in self.speed_list)
+            torque_string = ' '.join(str(e) for e in self.torque_list)
+            
+            if not motor_ismi or not speed_string or not torque_string:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Hata",
+                    "Tüm alanları doldurunuz!",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+            else:
+                engine_instance = Engine_db(
+                    engine_name=motor_ismi,
+                    speed=speed_string,
+                    torque=torque_string
+                )
+                engine_instance.create_engine()
+                self.engineWindow.close()
+                self.update_engine_list()
+                
+                # Başarı mesajı göster
+                msg = QtWidgets.QMessageBox.information(
+                    self,
+                    "Başarılı",
+                    f"{motor_ismi} motoru başarıyla kaydedilmiştir",
+                    QtWidgets.QMessageBox.StandardButton.Ok
+                )
+        except Exception as e:
+            print(f"Motor ekleme hatası: {str(e)}")
             QtWidgets.QMessageBox.warning(
                 self,
                 "Hata",
-                "Tüm alanları doldurunuz!",
+                "Motor eklenirken bir hata oluştu!",
                 QtWidgets.QMessageBox.StandardButton.Ok
             )
-            
-        else:
-            engine_instance=Engine_db(
-                engine_name=motor_ismi,
-                speed=speed_string,
-                torque=torque_string
-            )
-            engine_instance.create_engine()
-            self.engineWindow.close()
-            self.update_engine_list()
-            print(speed_string,torque_string,motor_ismi)
-            
+
     def onGearClicked(self):
         sanziman_ismi = self.ui.sanziman_ismi.text()
         vites_oranlari = self.ui.vites_oranlari.text()
@@ -637,3 +841,36 @@ class Pancar(QtWidgets.QMainWindow):
             )
             if msg==QtWidgets.QMessageBox.StandardButton.Ok:
                 return
+
+    def cleanup_temp_files(self):
+        """Geçici grafik dosyalarını temizle"""
+        temp_files = [
+            "only_tractive_effort_vs_vehicle_speed.png",
+            "cs_final_tractive_force_vs_vehicle_speed.png",
+            "plot_torque_rpm_hp_graph.png",
+            "rpm_v_graph.png",
+            "torque_rpm_graph.png"
+        ]
+        
+        for file in temp_files:
+            try:
+                if os.path.exists(f"./App/report/{file}"):
+                    os.remove(f"./App/report/{file}")
+            except Exception as e:
+                print(f"Dosya silinirken hata: {str(e)}")
+
+    def validate_numeric_inputs(self, **inputs):
+        """Sayısal girişleri doğrula"""
+        for name, value in inputs.items():
+            if not value:
+                raise ValueError(f"{name} alanı boş bırakılamaz")
+            if not is_numeric(value):
+                raise ValueError(f"{name} alanı sayısal olmalıdır")
+        return True
+
+    def validate_and_create_instance(self, instance_type, **kwargs):
+        """Ortak validasyon ve instance oluşturma işlemleri"""
+        if not all(kwargs.values()):
+            self.show_error_message("Hata", "Tüm alanları doldurunuz!")
+            return False
+        # ... validasyon ve instance oluşturma
