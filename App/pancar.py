@@ -12,6 +12,7 @@ from .package.calculations import overall_resist_forces, cs_overall_resist_force
 from multiprocessing import Process
 from PyQt6.QtWidgets import QProgressDialog
 from PyQt6.QtCore import Qt, QTimer
+from datetime import datetime
 
 class Pancar(QtWidgets.QMainWindow):
     DEFAULT_DIR = "/home/qt_user/Documents"
@@ -264,69 +265,66 @@ class Pancar(QtWidgets.QMainWindow):
             
             # PDF oluşturma
             pdf = FPDF()
-            
-            # İlk sayfa - grafikler
+            pdf.add_font('DejaVuBold', '', './App/fonts/dejavu-fonts-ttf-2.37/ttf/DejaVuSans-Bold.ttf', uni=True)
+            pdf.add_font('DejaVu', '', './App/fonts/dejavu-fonts-ttf-2.37/ttf/DejaVuSansCondensed.ttf', uni=True)
+            # İlk sayfa - bilgi alanı, tablo ve başlık
             pdf.add_page()
             pdf.image("./App/icons/rapor_sayfa1.png", 0, 0, self.PDF_WIDTH)
-            pdf.set_font('Arial', '', 24)
             
+            # Tarih
+            pdf.set_font('DejaVu', '', 12)
+            pdf.set_xy(150, 18)
+            current_date = datetime.now().strftime("%d.%m.%Y")
+            pdf.cell(30, 10, current_date, 0, 0, 'R')
+
+            # Ana başlık
+            pdf.set_font('DejaVu', '', 14)
+            pdf.set_y(45)  # 30'dan 65'e çıkarıldı (35mm aşağı)
+            pdf.cell(0, 10, 'Araç Bilgileri ve Belirlenen Ortamdaki Performans Değerleri', 0, 1, 'C')
+            
+            # Bilgi alanı
+            pdf.set_font('DejaVuBold', '', 11)
+            pdf.set_y(pdf.get_y() + 5)  # Başlıktan sonra 5mm boşluk
+            
+            # Seçilen değerleri al
+            selected_vehicle = self.get_current_status().arac_ismi
+            selected_engine = self.get_current_status().motor_ismi
+            selected_gearbox = self.get_current_status().sanziman_ismi
+            selected_environment = self.get_current_status().cevre_ismi
+            
+            # Bilgileri yerleştir
+            info_x = 60
+            info_spacing = 8
+            
+            for label, value in [
+                ('Araç:', selected_vehicle),
+                ('Motor:', selected_engine),
+                ('Şanzıman:', selected_gearbox),
+                ('Ortam:', selected_environment)
+            ]:
+                pdf.set_x(info_x)
+                pdf.set_font('DejaVuBold', '', 11)  # Etiketler için kalın font
+                pdf.cell(40, info_spacing, label, 0, 0)
+                pdf.set_font('DejaVu', '', 11)      # Değerler için normal font
+                pdf.cell(100, info_spacing, value, 0, 1)
+
             update_progress(20)
             
-            # Grafikleri oluştur
-            rpm_v_graph(liste=self.get_current_status().arac_v_list(),
-                       rpm=self.get_current_status().motor_hiz)
-            update_progress(35)
-            
-            torque_rpm_graph(rpm=self.get_current_status().motor_hiz,
-                           torque=self.get_current_status().motor_tork)
-            update_progress(50)
-            
-            plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,
-                                   torque=self.get_current_status().motor_tork)
-            update_progress(65)
-            
-            only_tractive_effort_vs_vehicle_speed(
-                tractive_f_list=tractive_f(
-                    tork_list=self.get_current_status().tork_times_gear_list(),
-                    r_w=self.get_current_status().tekerlek_yaricap,
-                    t_efficiency=self.get_current_status().ao_verimi),
-                hiz_list=self.get_current_status().arac_v_list())
-            update_progress(80)
-            
-            cs_final_tractive_force_vs_vehicle_speed(
-                f_list=final_force(
-                    resist_f=self.get_current_status().cs_resist_forces(),
-                    tractive_f=tractive_f(
-                        tork_list=self.get_current_status().tork_times_gear_list(),
-                        r_w=self.get_current_status().tekerlek_yaricap,
-                        t_efficiency=self.get_current_status().ao_verimi)),
-                hiz_list=self.get_current_status().arac_v_list())
-            update_progress(90)
-            
-            # Grafikleri PDF'e ekle
-            pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", x=55, y=60, w=95)
-            pdf.image("./App/report/rpm_v_graph.png", x=8, y=140, w=95)
-            pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
-            pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
-            pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
-            
-            # İkinci sayfa - tablo
-            pdf.add_page()
-            pdf.image("./App/icons/rapor_sayfa2.png", 0, 0, self.PDF_WIDTH)
-            
-            # Tablo için başlık
-            pdf.set_font('Arial', 'B', 12)
-            pdf.ln(50)  # 50mm boşluk bırak
-            pdf.cell(0, 10, 'VITES BAZLI MAKSIMUM HIZ VE CEKIS KUVVETI DEGERLERI', 0, 1, 'C')
-            pdf.ln(5)
+            # Tablo başlığı
+            pdf.set_font('DejaVu', '', 13)
+            pdf.set_y(pdf.get_y() + 20)  # Bilgi alanından sonra 20mm boşluk
+            pdf.cell(0, 10, 'Aracın Belirlenen Ortamdaki En Yüksek Hızları Ve Çekiş Gücü Değerleri', 0, 1, 'C')
+            pdf.set_y(pdf.get_y() + 5)  # Tablo başlığından sonra 5mm boşluk
+
+            # Tablo başlıkları ve verileri
+            pdf.set_font('DejaVuBold', '', 9)
+            col_width = 40
+            row_height = 9
+            left_margin = (self.PDF_WIDTH - (col_width * 4)) / 2
+            pdf.set_left_margin(left_margin)
             
             # Tablo başlıkları
-            pdf.set_font('Arial', 'B', 10)
-            col_width = 47
-            row_height = 7
-            
-            # Tablo başlıkları
-            headers = ['Vites', 'Max. Hiz (km/h)', 'Cekis Kuvveti (N)', 'Net Cekis Kuvveti (N)']
+            headers = ['Vites', 'Max. Hız (km/h)', 'Çekiş Kuvveti (N)', 'Net Çekiş Kuvveti (N)']
             for header in headers:
                 pdf.cell(col_width, row_height, header, 1, 0, 'C')
             pdf.ln()
@@ -353,8 +351,88 @@ class Pancar(QtWidgets.QMainWindow):
                 pdf.cell(col_width, row_height, f'{max_speed:.2f}', 1, 0, 'C')
                 pdf.cell(col_width, row_height, f'{max_force:.2f}', 1, 0, 'C')
                 pdf.cell(col_width, row_height, f'{net_force:.2f}', 1, 1, 'C')
+            update_progress(30)
+            # İkinci sayfa - diğer grafikler
+            pdf.add_page()
+            pdf.image("./App/icons/rapor_sayfa2.png", 0, 0, self.PDF_WIDTH)
+            pdf.set_font('DejaVu', '', 12)
+            pdf.set_xy(150, 18)
+            pdf.cell(30, 10, current_date, 0, 0, 'R')
+            update_progress(45)
+
+            # Önce tüm grafikleri oluştur
+            cs_final_tractive_force_vs_vehicle_speed(
+                f_list=final_force(
+                    resist_f=self.get_current_status().cs_resist_forces(),
+                    tractive_f=tractive_f(
+                        tork_list=self.get_current_status().tork_times_gear_list(),
+                        r_w=self.get_current_status().tekerlek_yaricap,
+                        t_efficiency=self.get_current_status().ao_verimi)),
+                hiz_list=self.get_current_status().arac_v_list())
             
-            update_progress(95)
+            rpm_v_graph(liste=self.get_current_status().arac_v_list(),
+                       rpm=self.get_current_status().motor_hiz)
+            
+            torque_rpm_graph(rpm=self.get_current_status().motor_hiz,
+                           torque=self.get_current_status().motor_tork)
+            
+            plot_torque_rpm_hp_graph(rpm=self.get_current_status().motor_hiz,
+                                   torque=self.get_current_status().motor_tork)
+            
+            only_tractive_effort_vs_vehicle_speed(
+                tractive_f_list=tractive_f(
+                    tork_list=self.get_current_status().tork_times_gear_list(),
+                    r_w=self.get_current_status().tekerlek_yaricap,
+                    t_efficiency=self.get_current_status().ao_verimi),
+                hiz_list=self.get_current_status().arac_v_list())
+            
+            update_progress(55)
+            
+            # Grafikleri düzenle
+            graph_width = 85  # Grafik genişliği biraz küçültüldü
+            graph_height = 85  # Grafik yüksekliği biraz küçültüldü
+            
+            # Üstteki grafik için merkezi konumlandırma
+            x_center = (self.PDF_WIDTH - graph_width) / 2
+            y_top = 35  # Üst grafik biraz yukarı alındı
+            
+            # Alt grafiklerin yerleşimi için
+            x_margin = (self.PDF_WIDTH - (2 * graph_width)) / 3  # Yatay kenar boşluğu
+            y_start = y_top + graph_height  # Üst grafikle alt grafikler arası mesafe azaltıldı
+             # Alt grafik sıraları arası boşluk eklendi
+
+            # Üstteki merkezi grafik
+            pdf.image("./App/report/plot_torque_rpm_hp_graph.png", 
+                     x=x_center, 
+                     y=y_top, 
+                     w=graph_width)
+            update_progress(60)
+
+            # Alt sıra ilk iki grafik
+            pdf.image("./App/report/rpm_v_graph.png", 
+                     x=x_margin, 
+                     y=y_start, 
+                     w=graph_width)
+            update_progress(70)
+            
+            pdf.image("./App/report/torque_rpm_graph.png", 
+                     x=x_margin*2 + graph_width, 
+                     y=y_start, 
+                     w=graph_width)
+            update_progress(80)
+
+            # En alt sıra iki grafik
+            pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", 
+                     x=x_margin, 
+                     y=y_start + graph_height, 
+                     w=graph_width)
+            update_progress(85)
+            
+            pdf.image("./App/report/only_tractive_effort_vs_vehicle_speed.png", 
+                     x=x_margin*2 + graph_width, 
+                     y=y_start + graph_height, 
+                     w=graph_width)
+            update_progress(90)
             
             # PDF'i kaydet
             pdf.output(f"{isim}.pdf")
