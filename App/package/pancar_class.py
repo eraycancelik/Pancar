@@ -112,7 +112,7 @@ class OutGraps:
     
     def rpm_v_graph(self):
         graph_instance = EngineDataGraph(
-            torque_main=self.motor_tork, rpm_main=self.motor_hiz,graph_title="rb 26 motoru"
+            torque_main=self.motor_tork, rpm_main=self.motor_hiz,graph_title="Motor Hızı vs Araç Hızı Grafiği"
         )
         graph_instance.rpm_v_graph( 
             liste=self.arac_v_list(),
@@ -121,13 +121,13 @@ class OutGraps:
            
     def torque_rpm_graph(self):
         graph_instance = EngineDataGraph(
-            torque_main=self.motor_tork, rpm_main=self.motor_hiz,graph_title="rb 26 motoru"
+            torque_main=self.motor_tork, rpm_main=self.motor_hiz,graph_title="Motor Hızı vs Tork Grafiği"
         )
         graph_instance.torque_rpm_graph()
         
     def torque_rpm_power_graph(self):
         graph_instance = EngineDataGraph(
-            torque_main=self.motor_tork, rpm_main=self.motor_hiz,graph_title="rb 26 motoru"
+            torque_main=self.motor_tork, rpm_main=self.motor_hiz,graph_title="Motor Hızı vs Güç vs Tork Grafiği"
         )
         graph_instance.plot_torque_rpm_hp_graph()
         

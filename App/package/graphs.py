@@ -71,7 +71,7 @@ class EngineDataGraph:
         plt.xlabel("Araç Hızı")
         plt.ylabel("Motor devir hızı")
         plt.grid(which="both", axis="both", linestyle="--", linewidth=0.5)
-        plt.suptitle("rpm vs vehicle speed")
+        plt.suptitle("Motor Hızı vs Araç Hızı")
         plt.show()
         del a,i
         gc.collect

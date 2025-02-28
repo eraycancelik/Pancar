@@ -243,7 +243,7 @@ class Pancar(QtWidgets.QMainWindow):
     
     def create_analytics_report(self):
         try:
-            isim = self.report_location("rapor")
+            isim = self.report_location("Rapor")
             if not isim:  # Kullanıcı iptal ettiyse
                 return
                 
@@ -264,8 +264,10 @@ class Pancar(QtWidgets.QMainWindow):
             
             # PDF oluşturma
             pdf = FPDF()
+            
+            # İlk sayfa - grafikler
             pdf.add_page()
-            pdf.image("./App/icons/panco_yildizli.png", 0, 0, self.PDF_WIDTH)
+            pdf.image("./App/icons/rapor_sayfa1.png", 0, 0, self.PDF_WIDTH)
             pdf.set_font('Arial', '', 24)
             
             update_progress(20)
@@ -307,6 +309,52 @@ class Pancar(QtWidgets.QMainWindow):
             pdf.image("./App/report/torque_rpm_graph.png", x=8, y=215, w=95)
             pdf.image("./App/report/plot_torque_rpm_hp_graph.png", x=105, y=140, w=95)
             pdf.image("./App/report/cs_final_tractive_force_vs_vehicle_speed.png", x=107, y=215, w=95)
+            
+            # İkinci sayfa - tablo
+            pdf.add_page()
+            pdf.image("./App/icons/rapor_sayfa2.png", 0, 0, self.PDF_WIDTH)
+            
+            # Tablo için başlık
+            pdf.set_font('Arial', 'B', 12)
+            pdf.ln(50)  # 50mm boşluk bırak
+            pdf.cell(0, 10, 'VITES BAZLI MAKSIMUM HIZ VE CEKIS KUVVETI DEGERLERI', 0, 1, 'C')
+            pdf.ln(5)
+            
+            # Tablo başlıkları
+            pdf.set_font('Arial', 'B', 10)
+            col_width = 47
+            row_height = 7
+            
+            # Tablo başlıkları
+            headers = ['Vites', 'Max. Hiz (km/h)', 'Cekis Kuvveti (N)', 'Net Cekis Kuvveti (N)']
+            for header in headers:
+                pdf.cell(col_width, row_height, header, 1, 0, 'C')
+            pdf.ln()
+            
+            # Tablo verileri
+            pdf.set_font('Arial', '', 10)
+            hiz_list = self.get_current_status().arac_v_list()
+            tractive_forces = tractive_f(
+                tork_list=self.get_current_status().tork_times_gear_list(),
+                r_w=self.get_current_status().tekerlek_yaricap,
+                t_efficiency=self.get_current_status().ao_verimi)
+            net_forces = final_force(
+                resist_f=self.get_current_status().cs_resist_forces(),
+                tractive_f=tractive_forces)
+            
+            # Her vites için maksimum değerleri bul ve tabloya ekle
+            for gear_num in range(len(hiz_list)):
+                max_speed = max(hiz_list[gear_num])
+                max_force_idx = tractive_forces[gear_num].index(max(tractive_forces[gear_num]))
+                max_force = tractive_forces[gear_num][max_force_idx]
+                net_force = net_forces[gear_num][max_force_idx]
+                
+                pdf.cell(col_width, row_height, f'{gear_num + 1}. Vites', 1, 0, 'C')
+                pdf.cell(col_width, row_height, f'{max_speed:.2f}', 1, 0, 'C')
+                pdf.cell(col_width, row_height, f'{max_force:.2f}', 1, 0, 'C')
+                pdf.cell(col_width, row_height, f'{net_force:.2f}', 1, 1, 'C')
+            
+            update_progress(95)
             
             # PDF'i kaydet
             pdf.output(f"{isim}.pdf")
