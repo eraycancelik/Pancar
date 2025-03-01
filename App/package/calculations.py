@@ -16,12 +16,9 @@ def powerInKw(tork, devir):
 
 
 def overall_gear_ratio(gearBox, differential_gear_ratio):
-    gear_list = [1]
-    for i in gearBox:
-        gear_list.append(gear_list[-1] * i)
-    # gear_list.pop(0)
-    response = [a * differential_gear_ratio for a in gear_list]
-    # response.append(round(differential_gear_ratio * i, 2))
+    response = []
+    for gear_ratio in gearBox:
+        response.append(gear_ratio * differential_gear_ratio)
     return response
 
 
@@ -92,7 +89,7 @@ def cs_overall_resist_forces(
             resistors = (arac_kutlesi * cekim_ivmesi) * (
                 yuvarlanma_katsiyi * math.cos(int(math.radians(yol_egimi)))
                 + math.sin(int(math.radians(yol_egimi)))
-            ) + ((p_yogunluk * cw_aero * Af_izdusum * (i + ruzgar_hizi)) / 2)
+            ) + ((p_yogunluk * cw_aero * Af_izdusum * (i - ruzgar_hizi)) / 2)
             sublist.append(resistors)
         overall_F_r.append(sublist)
     return overall_F_r
