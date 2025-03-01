@@ -116,9 +116,9 @@ class Ui_Sanziman(object):
         Sanziman.setWindowTitle(_translate("Sanziman", "Şanzıman"))
         self.label_16.setText(_translate("Sanziman", "Şanzıman Parametreleri"))
         self.label_10.setText(_translate("Sanziman", "Şanzıman ismi"))
-        self.label_11.setText(_translate("Sanziman", "Vites oranları (3.45,2,3 şeklinde)"))
+        self.label_11.setText(_translate("Sanziman", "Vites oranları (3.24 2.81 1.78)"))
         self.label_14.setText(_translate("Sanziman", "Diferansiyel dişli oranı"))
-        self.label_15.setText(_translate("Sanziman", "Aktarma organları verimi"))
+        self.label_15.setText(_translate("Sanziman", "Aktarma organları verimi (0-1)"))
         self.sanziman_kaydet.setText(_translate("Sanziman", "KAYDET"))
 
 

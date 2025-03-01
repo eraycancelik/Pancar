@@ -225,9 +225,9 @@ class Ui_Rapor(object):
         self.cevre.setText(_translate("Rapor", "Nürburgring "))
         self.groupBox_2.setTitle(_translate("Rapor", "Genel Bilgiler"))
         self.label_8.setText(_translate("Rapor", "Test Mühendisi"))
-        self.kullanici.setText(_translate("Rapor", "Eray Cançelik"))
+        self.kullanici.setText(_translate("Rapor", "-"))
         self.label_9.setText(_translate("Rapor", "Araç"))
-        self.arac_ismi.setText(_translate("Rapor", "Toyota supra mk3 2jz"))
+        self.arac_ismi.setText(_translate("Rapor", "-"))
         self.rapor_olustur.setText(_translate("Rapor", "Rapor oluştur  "))
 
 

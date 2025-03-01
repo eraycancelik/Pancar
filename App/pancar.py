@@ -23,7 +23,7 @@ class Pancar(QtWidgets.QMainWindow):
         self.path=path
         self.ui = mainWindow.Ui_VehicleDynamicsApp()
         self.ui.setupUi(self)
-        self.URL="www.pancartech.com"
+        self.URL="www.pancar.tech"
         self.engine_tork_speed_list=self.ui.engine_torque_speed_list
         self.gearbox_list=self.ui.gearbox_list
         self.vehicle_list=self.ui.vehicle_list

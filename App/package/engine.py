@@ -49,7 +49,7 @@ class Motor:
         return aerodinamik_direnc
 
     def velocity_rpm(self, rpm, gear_box):
-        gear_set = gear_box[:-1]
+        gear_set = gear_box[:]
         overall_list = []
         for i in gear_set:
             velocity_list = []
@@ -63,7 +63,7 @@ class Motor:
         return overall_list
 
     def windy_velocity_rpm(self, rpm, gear_box, ruzgar_hizi):
-        gear_set = gear_box[:-1]
+        gear_set = gear_box[:]
         overall_list = []
 
         for i in gear_set:
@@ -79,7 +79,7 @@ class Motor:
 
     def torque_rev_per_gear(self, overall_gear_ratio, tork_list):
         overall_list = []
-        gear = overall_gear_ratio[:-1]
+        gear = overall_gear_ratio[:]
         for a in gear:
             sub_list = []
             for b in tork_list:

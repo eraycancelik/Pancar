@@ -19,7 +19,7 @@ def overall_gear_ratio(gearBox, differential_gear_ratio):
     gear_list = [1]
     for i in gearBox:
         gear_list.append(gear_list[-1] * i)
-    gear_list.pop(0)
+    # gear_list.pop(0)
     response = [a * differential_gear_ratio for a in gear_list]
     # response.append(round(differential_gear_ratio * i, 2))
     return response
